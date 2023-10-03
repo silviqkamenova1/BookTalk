@@ -1,33 +1,23 @@
-// const Crypto = require('../models/Crypto')
+const Book = require('../models/Book')
+const User = require('../models/User');
 
-// exports.getAll = () => Crypto.find({}).lean();
+exports.getAll = () => Book.find({}).lean();
 
-// exports.getOne = (cryptoId) => Crypto.findById(cryptoId).lean();
+exports.create = (ownerId, bookData) => Book.create({...bookData, owner: ownerId})
+exports.getOne = (bookId) => Book.findById(bookId).lean();
 
-// // exports.search = async (name, paymentMethod) => {
-// //     let crypto = await this.getAll();
+exports.edit = (bookId, bookData) => Book.findByIdAndUpdate(bookId, bookData, { runValidators: true});
 
-// //     if(name) {
-// //         crypto = crypto.filter(x => x.name.toLowerCase() == name.toLowerCase());
-// //     };
+exports.wish = async (userId, bookId) => {
+    const book = await Book.findById(bookId);
+    book.wishingList.push(userId);
 
-// //     if(paymentMethod){
-// //         crypto = crypto.filter(x => x.paymentMethod == paymentMethod);
-// //     };
+    return book.save()
+}
+exports.getUserId = (userId) => Book.findById(userId).populate('wishingList').lean()
 
-// //     return crypto;
-// // }
-
-// // exports.buy = async (userId, cryptoId) => {
-// //     const crypto = await Crypto.findById(cryptoId);
-// //     crypto.buyers.push(userId);
-
-// //     return crypto.save()
-// // }
 // // //Crypto.findByIdAndUpdate(cryptoId, {$push: { buyers: userId}})
 // // //(single query)mongo db push operator - find crypto by Id and update it when push userId in property buyers
-// exports.create = (ownerId, cryptoData) => Crypto.create({...cryptoData, owner: ownerId})
 
-// exports.edit = (cryptoId, cryptoData) => Crypto.findByIdAndUpdate(cryptoId, cryptoData, { runValidators: true})
 
-// exports.delete =  (cryptoId) =>  Crypto.findByIdAndDelete(cryptoId)
+exports.delete =  (bookId) =>  Book.findByIdAndDelete(bookId)

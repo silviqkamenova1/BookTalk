@@ -10,10 +10,10 @@ exports.findByEmail = (email) => User.findOne({ email });
 
 exports.register = async (email, username, password, repeatPassword) => {
     if (password !== repeatPassword) {
-        throw new Error('Password missmatch');
+        throw new Error('Password missmatch')
     }
 
-    const existingUser = await User.findOne({username});
+    const existingUser = await User.findOne({email});
 
     // const existingUser = await User.findOne({
     //     $or: [
@@ -31,12 +31,12 @@ exports.register = async (email, username, password, repeatPassword) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
 
-    await User.create({ username, password: hashedPassword, address });
+    await User.create({email, username, password: hashedPassword });
     return this.login(username, password)
 };
 
-exports.login = async (username, password) => {
-    const user = await this.findByUsername(username);
+exports.login = async (email, password) => {
+    const user = await this.findByEmail(email);
 
     if (!user) {
         throw new Error('Invalid email or password');
@@ -49,7 +49,7 @@ exports.login = async (username, password) => {
 
     const payload = {
         _id: user._id,
-        username: user.username
+        email: user.email
     }
     const token = await jwt.sign(payload, SECRET);
 

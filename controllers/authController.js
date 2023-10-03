@@ -28,9 +28,9 @@ router.post('/register', async (req, res) => {
    const { email, username, password, repeatPassword } = req.body;
 
    try {
-      const token = await authService.register( email, username, password, repeatPassword );
-      //await authService.login(username, password)
-
+      const token = await authService.register(email, username, password, repeatPassword);
+      //await authService.login(email, password)
+      console.log(token);
       res.cookie('auth', token);
       res.redirect('/');
       

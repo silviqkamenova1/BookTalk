@@ -2,84 +2,85 @@ const router = require('express').Router();
 
 //const { paymentMethodsMap } = require('../constants');
 const { isAuth } = require('../middlewares/authMiddleware');
-const cryptoService = require('../services/bookService');
+const bookService = require('../services/bookService');
 const { getErrorMessage } = require('../utils/errorutils');
 //const { getPaymentDataViewData } = require('../utils/viewDataUtils')
 
 router.get('/catalog', async (req, res) => {
-    //const crypto = await cryptoService.getAll();
+    const book = await bookService.getAll();
  
-    res.render('book/catalog')//, { crypto })
+    res.render('book/catalog', { book })
 });
 
-// router.get('/search', async (req, res) => {
-//     const { name, paymentMethod } = req.query;
-//     const crypto = await cryptoService.search(name, paymentMethod);
-//     const paymentMethods = getPaymentDataViewData(paymentMethod);
+router.get('/profile', async (req, res) => {
 
-//     res.render('crypto/search', { crypto, paymentMethods, name })
-// });
+    // const book = await bookService.getUserId(req.user._id);
+    // console.log(user);
+    res.render('book/profile')//, {...book})
 
-// router.get('/:cryptoId/details', async (req, res) => {
-//     const crypto = await cryptoService.getOne(req.params.cryptoId);
+});
+router.get('/:bookId/details', async (req, res) => {
+    const book = await bookService.getOne(req.params.bookId);
 
-//     const isOwner = crypto.owner == req.user?._id;
-//     // or to transform object crypto.owner to string(toString())
-//     const isBuyer = crypto.buyers?.some(id => id == req.user?._id)
-//     crypto.paymentMethod = paymentMethodsMap[crypto.paymentMethod]
-//     // or crypto.buyers.some(id => id == req.user?._id)
-//     res.render('crypto/details', { crypto, isOwner, isBuyer})
-//         //first param is the view we want to render, the second is data which we need to be visualize
-// });
+    const isOwner = book.owner == req.user?._id;
+    const isWish = book.wishingList?.some(id => id == req.user?._id)
+    //crypto.paymentMethod = paymentMethodsMap[crypto.paymentMethod]
+    res.render('book/details', { ...book, isOwner, isWish})
+});
 
-// router.get('/:cryptoId/buy', isAuth, async (req, res) => {
-//     try{
-//         await cryptoService.buy(req.user._id, req.params.cryptoId);
-//     } catch(error){
-//         return res.render('404')    
-//     }
+router.get('/:bookId/edit',isAuth, async (req, res) => {
+    const book = await bookService.getOne(req.params.bookId);
 
-//     res.redirect(`/crypto/${req.params.cryptoId}/details`)
-// });
+    //const paymentMethods = getPaymentDataViewData(crypto.paymentMethod);
 
-// router.get('/:cryptoId/edit',isAuth, async (req, res) => {
-//     const crypto = await cryptoService.getOne(req.params.cryptoId);
+    res.render('book/edit', { ...book})//, paymentMethods })
+});
 
-//     const paymentMethods = getPaymentDataViewData(crypto.paymentMethod);
+router.post('/:bookId/edit', isAuth, async (req, res) => {
+    try{
+        const bookData = req.body;
+        await bookService.edit(req.params.bookId, bookData);
+    
+        res.redirect(`/book/${req.params.bookId}/details`)
+    }catch(error){
+        return res.status(400).render(`/book/${req.params.bookId}/edit`, {error: getErrorMessage(error)})
+    }
+});
+router.get('/:bookId/wish', isAuth, async (req, res) => {
+    try{
+        await bookService.wish(req.user._id, req.params.bookId);
+    } catch(error){
+        return res.render('404')    
+    }
 
-//     res.render('crypto/edit', { crypto, paymentMethods })
-// });
+    res.redirect(`/book/${req.params.bookId}/details`)
+});
 
-// router.post('/:cryptoId/edit', isAuth, async (req, res) => {
-//     const cryptoData = req.body;
-//     await cryptoService.edit(req.params.cryptoId, cryptoData);
 
-//     res.redirect(`/crypto/${req.params.cryptoId}/details`)
-// });
 
 
 router.get('/create', isAuth, (req, res) => {
     res.render('book/create');
 });
 
-// router.post('/create', isAuth, async (req, res) => {
-//     const cryptoData = req.body;
+router.post('/create', isAuth, async (req, res) => {
+    const bookData = req.body;
     
-//     try {
-//         await cryptoService.create(req.user._id, cryptoData);
-//     } catch (error) {
-//         return res.status(400).render('crypto/create', {error: getErrorMessage(error)})
-//     }
+    try {
+        await bookService.create(req.user._id, bookData);
+    } catch (error) {
+        return res.status(400).render('book/create', {error: getErrorMessage(error)})
+    }
     
-//     res.redirect('/crypto/catalog');
-// });
+    res.redirect('/book/catalog');
+});
 
-// router.get('/:cryptoId/delete', isAuth, async (req, res) => {
+router.get('/:bookId/delete', isAuth, async (req, res) => {
 
-//     await cryptoService.delete(req.params.cryptoId);
-//     res.render('/crypto/catalog')
+    await bookService.delete(req.params.bookId);
+    res.redirect('/book/catalog')
 
-// });
+});
 
 
 module.exports = router;
