@@ -14,7 +14,7 @@ exports.wish = async (userId, bookId) => {
 
     return book.save()
 }
-exports.getUserId = (userId) => Book.findById(userId).populate('wishingList').lean()
+exports.getUserId = (userId) => User.findById(userId).lean()//.populate('wishingList').lean()
 
 // // //Crypto.findByIdAndUpdate(cryptoId, {$push: { buyers: userId}})
 // // //(single query)mongo db push operator - find crypto by Id and update it when push userId in property buyers

@@ -14,9 +14,9 @@ router.get('/catalog', async (req, res) => {
 
 router.get('/profile', async (req, res) => {
 
-    // const book = await bookService.getUserId(req.user._id);
-    // console.log(user);
-    res.render('book/profile')//, {...book})
+    const user = await bookService.getUserId(req.user._id);
+    console.log(user);
+    res.render('book/profile', {...user})
 
 });
 router.get('/:bookId/details', async (req, res) => {
