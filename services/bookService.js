@@ -10,10 +10,14 @@ exports.edit = (bookId, bookData) => Book.findByIdAndUpdate(bookId, bookData, { 
 
 exports.wish = async (userId, bookId) => {
     const book = await Book.findById(bookId);
-    book.wishingList.push(userId);
+    const image = book.image
+    book.wishingList.push({userId});
 
     return book.save()
 }
+
+exports.getWishedBooks = (userId) => Book.find({wishingList: userId}).populate('wishingList', 'image _id')
+
 exports.getUserId = (userId) => User.findById(userId).lean()//.populate('wishingList').lean()
 
 // // //Crypto.findByIdAndUpdate(cryptoId, {$push: { buyers: userId}})

@@ -15,8 +15,10 @@ router.get('/catalog', async (req, res) => {
 router.get('/profile', async (req, res) => {
 
     const user = await bookService.getUserId(req.user._id);
-    console.log(user);
-    res.render('book/profile', {...user})
+    let wished = await bookService.getWishedBooks(req.user._id).lean()
+    //wished = wished.map(el => el.wishingList)
+    console.log(wished);
+    res.render('book/profile', {...user, wished})
 
 });
 router.get('/:bookId/details', async (req, res) => {
